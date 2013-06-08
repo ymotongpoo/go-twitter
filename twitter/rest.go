@@ -2,7 +2,10 @@ package twitter
 
 import (
 	"encoding/json"
+	_ "fmt"
+	_ "io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/garyburd/go-oauth/oauth"
 )
@@ -30,7 +33,7 @@ func NewClient(httpClient *http.Client) *Client {
 		TokenRequestURI:               "http://api.twitter.com/oauth/access_token",
 	}
 	if httpClient == nil {
-		client.HttpClient = &http.DefaultClient
+		client.HttpClient = http.DefaultClient
 	} else {
 		client.HttpClient = httpClient
 	}
@@ -42,15 +45,15 @@ func (c *Client) makeAPIRequest(ri *ResourceInfo, v *url.Values, result interfac
 	var err error
 	switch ri.HttpMethod {
 	case "GET":
-		resp, err = c.OAuthClient.Get(c.HttpClient, c.accessCredentials, ri.EndPoint, v)
+		resp, err = c.OAuthClient.Get(c.HttpClient, c.accessCredentials, ri.EndPoint, *v)
 	case "POST":
-		resp, err = c.OAuthClient.Post(c.HttpClient, c.accessCredentials, ri.EndPoint, v)
+		resp, err = c.OAuthClient.Post(c.HttpClient, c.accessCredentials, ri.EndPoint, *v)
 	}
 	if err != nil {
 		return err
 	}
 
-	err := json.NewDecoder(resp.Body).Decode(result)
+	err = json.NewDecoder(resp.Body).Decode(result)
 	if err != nil {
 		return err
 	}
@@ -66,7 +69,7 @@ func (c *Client) MentionsTimeline() ([]*Tweets, error) {
 	ri := ResourceInfoMap["status/mentions_timeline"]
 	v := &url.Values{}
 	result := []*Tweets{}
-	err := makeAPIRequest(ri, v, result)
+	err := c.makeAPIRequest(ri, v, &result)
 	if err != nil {
 		return nil, err
 	}

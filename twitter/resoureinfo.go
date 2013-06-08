@@ -4,7 +4,7 @@ const APIBaseUrl = "https://api.twitter.com/1.1/"
 
 var ResourceInfoMap = map[string]*ResourceInfo{
 	"status/mentions_timeline": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "status/mentions_timeline.json",
+		EndPoint:       APIBaseUrl + "statuses/mentions_timeline.json",
 		Authentication: true,
 		HttpMethod:     "GET",
 		RequiredArgs:   []string{},
