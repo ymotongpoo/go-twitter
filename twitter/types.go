@@ -166,3 +166,33 @@ type Users struct {
 	WithheldInCountries            string    `json:"withheld_in_countries"`
 	WithheldScope                  string    `json:"withheld_scope"`
 }
+
+type OEmbed struct {
+	AuthorName   string `json:"author_name"`
+	AuthorUrl    string `json:"author_url"`
+	CacheAge     string `json:"cache_age"`
+	Height       int    `json:"height"`
+	Html         string `json:"html"`
+	ProviderName string `json:"provider_name"`
+	ProviderUrl  string `json:"provider_url"`
+	Type         string `json:"type"`
+	Url          string `json:"url"`
+	Version      string `json:"version"`
+	Width        int    `json:"width"`
+}
+
+type Search struct {
+	Statuses []*Tweets       `json:"statuses"`
+	Metadata *SearchMetadata `json:"search_metadata"`
+}
+
+type SearchMetadata struct {
+	Count       int    `json:"count"`
+	MaxId       int64  `json:"max_id"`
+	MaxIdStr    string `json:"max_id_str"`
+	NextResults string `json:"next_results"`
+	Query       string `json:"query"`
+	RefreshUrl  string `json:"refresh_url"`
+	SinceId     int64  `json:"since_id"`
+	SinceIdStr  string `json:"since_id_str"`
+}
