@@ -1,10 +1,13 @@
 package twitter
 
-const APIBaseUrl = "https://api.twitter.com/1.1/"
+const (
+	RestAPIBaseUrl   = "https://api.twitter.com/1.1/"
+	StreamAPIBaseUrl = "https://stream.twitter.com/1.1/"
+)
 
 var ResourceInfoMap = map[string]*ResourceInfo{
 	"statuses/mentions_timeline": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/mentions_timeline.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/mentions_timeline.json",
 		Authentication: true,
 		HttpMethod:     "GET",
 		RequiredArgs:   []string{},
@@ -12,7 +15,7 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"contributor_details", "include_entities"},
 	},
 	"statuses/user_timeline": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/user_timeline.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/user_timeline.json",
 		Authentication: true,
 		HttpMethod:     "GET",
 		RequiredArgs:   []string{},
@@ -21,7 +24,7 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"include_rts"},
 	},
 	"statuses/home_timeline": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/home_timeline.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/home_timeline.json",
 		Authentication: true,
 		HttpMethod:     "GET",
 		RequiredArgs:   []string{},
@@ -29,7 +32,7 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"exclude_replies", "contributor_details", "include_entities"},
 	},
 	"statuses/retweets_of_me": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/retweets_of_me.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/retweets_of_me.json",
 		Authentication: true,
 		HttpMethod:     "GET",
 		RequiredArgs:   []string{},
@@ -37,7 +40,7 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"include_entities", "include_user_entities"},
 	},
 	"statuses/show/:id": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/show/%v.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/show/%v.json",
 		Authentication: true,
 		HttpMethod:     "GET",
 		RequiredArgs:   []string{"id"},
@@ -45,7 +48,7 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"include_entities"},
 	},
 	"statuses/destroy/:id": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/destroy/%v.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/destroy/%v.json",
 		Authentication: true,
 		HttpMethod:     "POST",
 		RequiredArgs:   []string{"id"},
@@ -53,7 +56,7 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"include_entities"},
 	},
 	"statuses/update": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/update.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/update.json",
 		Authentication: true,
 		HttpMethod:     "POST",
 		RequiredArgs:   []string{"status"},
@@ -61,14 +64,14 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"place_id", "display_coordinates", "trim_user"},
 	},
 	"statuses/retweet/:id": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/retweet/%v.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/retweet/%v.json",
 		Authentication: true,
 		HttpMethod:     "POST",
 		RequiredArgs:   []string{"id"},
 		OptionalArgs:   []string{"trim_user"},
 	},
 	"statuses/update_with_media": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/update_with_media.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/update_with_media.json",
 		Authentication: true,
 		HttpMethod:     "POST",
 		RequiredArgs:   []string{"status", "media[]"},
@@ -76,7 +79,7 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"lat", "long", "place_id", "display_coordinates"},
 	},
 	"statuses/oembed": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "statuses/oembed.json",
+		EndPoint:       RestAPIBaseUrl + "statuses/oembed.json",
 		Authentication: true,
 		HttpMethod:     "GET",
 		RequiredArgs:   []string{"id", "url"},
@@ -84,7 +87,7 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"omit_script", "align", "related", "lang"},
 	},
 	"search/tweets": &ResourceInfo{
-		EndPoint:       APIBaseUrl + "search/tweets.json",
+		EndPoint:       RestAPIBaseUrl + "search/tweets.json",
 		Authentication: true,
 		HttpMethod:     "GET",
 		RequiredArgs:   []string{"q"},
@@ -92,4 +95,13 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 			"count", "until", "since_id", "max_id", "include_entites",
 			"callback"},
 	},
+	"statuses/filter": &ResourceInfo{
+		EndPoint:       StreamAPIBaseUrl + "statuses/filter.json",
+		Authentication: true,
+		HttpMethod:     "POST",
+		RequiredArgs:   []string{},
+		OptionalArgs: []string{"follow", "track", "locations", "delimited",
+			"stall_warning"},
+	},
 }
+

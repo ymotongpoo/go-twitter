@@ -1,14 +1,20 @@
 package twitter
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	_ "io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
 
 	"github.com/garyburd/go-oauth/oauth"
 )
+
+var BufferSize = 10000
 
 // Twitter client struct
 type Client struct {
@@ -67,12 +73,64 @@ func (c *Client) makeAPIRequest(ri *ResourceInfo, v *url.Values, result interfac
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(result)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+// makeAPIRequest throws GET/POST request with form values v to specific API
+// with reffering ResourceInfo, and stores JSON unmarshaled data into result.
+func (c *Client) makeStreamAPIRequest(ri *ResourceInfo, v *url.Values, stream interface{}, errch chan<- error) {
+	// TODO(ymotongpoo): Check if stream's type is channel first.
+	val := reflect.ValueOf(stream)
+	typ := val.Type()
+	kind := typ.Kind()
+
+	if kind != reflect.Chan {
+		errch <- errors.New("Not a channel")
+		return
+	}
+
+	var resp *http.Response
+	var err error
+	switch ri.HttpMethod {
+	case "GET":
+		resp, err = c.OAuthClient.Get(c.HttpClient, c.accessCredentials, ri.EndPoint, *v)
+	case "POST":
+		resp, err = c.OAuthClient.Post(c.HttpClient, c.accessCredentials, ri.EndPoint, *v)
+	}
+	if err != nil {
+		errch <- err
+		return
+	}
+	defer resp.Body.Close()
+
+	reader := bufio.NewReader(resp.Body)
+	etype := typ.Elem()
+	for {
+		line, err := reader.ReadBytes('\n')
+		if err != nil {
+			errch <- err
+		}
+		
+		line = bytes.TrimSpace(line)
+		if len(line) == 0 {
+			continue
+		}
+		element := reflect.Zero(etype)
+		err = json.Unmarshal(line, element)
+		if err != nil {
+			errch <- err
+		}
+		if !val.TrySend(element) {
+			errch <- errors.New("Can't send element")
+		}
+	}
+	return
 }
 
 // AddCredentials adds consumer key & consumer secret pair and
@@ -251,4 +309,24 @@ func (c *Client) Tweets(q string, option map[string]string) (*Search, error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+// Filter returns a channel of *Tweets which matches one or more filter predicates
+// specified in option. At least one predicate parameter ("follow", "locations" or "track")
+// must be specified.
+//
+// https://dev.twitter.com/docs/api/1.1/post/statuses/filter
+func (c *Client) Filter(option map[string]string) (<-chan *Tweets, <-chan error) {
+	ri := ResourceInfoMap["statuses/filter"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	// TODO(ymotongpoo): Add option validator to check if a required one exists in the option.
+
+	stream := make(chan *Tweets, BufferSize)
+	errch := make(chan error, BufferSize)
+	// TODO(ymotongpoo): Implement go function call for stream.
+	go c.makeStreamAPIRequest(ri, v, stream, errch)
+	return stream, errch
 }
