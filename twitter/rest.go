@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 
 	"github.com/garyburd/go-oauth/oauth"
 )
@@ -327,6 +328,69 @@ func (c *Client) Filter(option map[string]string) (<-chan *Tweets, <-chan error)
 	stream := make(chan *Tweets, BufferSize)
 	errch := make(chan error, BufferSize)
 	// TODO(ymotongpoo): Implement go function call for stream.
+	go c.makeStreamAPIRequest(ri, v, stream, errch)
+	return stream, errch
+}
+
+// https://dev.twitter.com/docs/api/1.1/get/statuses/sample
+func (c *Client) Sample(option map[string]string) (<-chan *Tweets, <-chan error) {
+	ri := ResourceInfoMap["statuses/sample"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	stream := make(chan *Tweets, BufferSize)
+	errch := make(chan error, BufferSize)
+	go c.makeStreamAPIRequest(ri, v, stream, errch)
+	return stream, errch
+}
+
+// https://dev.twitter.com/docs/api/1.1/get/statuses/firehose
+//
+// NOTE: This endpoint requires special permission to use. Check detailed information
+//       on the official documents. (Author do not have permission, so he welcome
+//       your runtime bug reports on GitHub.
+func (c *Client) Firehose(option map[string]string) (<-chan *Tweets, <-chan error) {
+	ri := ResourceInfoMap["statuses/firehose"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	stream := make(chan *Tweets, BufferSize)
+	errch := make(chan error, BufferSize)
+	go c.makeStreamAPIRequest(ri, v, stream, errch)
+	return stream, errch
+}
+
+// https://dev.twitter.com/docs/api/1.1/get/user
+//
+// User returns a channel of Tweets which is a stream of authorized user timeline.
+// https://dev.twitter.com/docs/streaming-apis/streams/user
+func (c *Client) User(option map[string]string) (<-chan *Tweets, <-chan error) {
+	ri := ResourceInfoMap["user"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	stream := make(chan *Tweets, BufferSize)
+	errch := make(chan error, BufferSize)
+	go c.makeStreamAPIRequest(ri, v, stream, errch)
+	return stream, errch
+}
+
+// https://dev.twitter.com/docs/api/1.1/get/site
+//
+// Site returns a channel of Tweets filled with tweet data of a list of specified users.
+// https://dev.twitter.com/docs/streaming-apis/streams/site
+func (c *Client) Site(follow []string, option map[string]string) (<-chan *Tweets, <-chan error) {
+	ri := ResourceInfoMap["site"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	v.Add("follow", strings.Join(follow, ","))
+	stream := make(chan *Tweets, BufferSize)
+	errch := make(chan error, BufferSize)
 	go c.makeStreamAPIRequest(ri, v, stream, errch)
 	return stream, errch
 }

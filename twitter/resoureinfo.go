@@ -1,8 +1,10 @@
 package twitter
 
 const (
-	RestAPIBaseUrl   = "https://api.twitter.com/1.1/"
-	StreamAPIBaseUrl = "https://stream.twitter.com/1.1/"
+	RestAPIBaseUrl       = "https://api.twitter.com/1.1/"
+	StreamAPIBaseUrl     = "https://stream.twitter.com/1.1/"
+	UserStreamAPIBaseUrl = "https://userstream.twitter.com/1.1/"
+	SiteStreamAPIBaseUrl = "https://sitestream.twitter.com/1.1/"
 )
 
 var ResourceInfoMap = map[string]*ResourceInfo{
@@ -103,5 +105,34 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 		OptionalArgs: []string{"follow", "track", "locations", "delimited",
 			"stall_warning"},
 	},
+	"statuses/sample": &ResourceInfo{
+		EndPoint:       StreamAPIBaseUrl + "statuses/sample.json",
+		Authentication: true,
+		HttpMethod:     "POST",
+		RequiredArgs:   []string{},
+		OptionalArgs:   []string{"delimited", "stall_warning"},
+	},
+	"statuses/firehose": &ResourceInfo{
+		EndPoint:       StreamAPIBaseUrl + "statuses/firehose.json",
+		Authentication: true,
+		HttpMethod:     "POST",
+		RequiredArgs:   []string{},
+		OptionalArgs:   []string{"count", "delimited", "stall_warning"},
+	},
+	"user": &ResourceInfo{
+		EndPoint:       UserStreamAPIBaseUrl + "user.json",
+		Authentication: true,
+		HttpMethod:     "GET",
+		RequiredArgs:   []string{},
+		OptionalArgs: []string{"delimited", "stall_warnings", "with",
+			"replies", "track", "locations"},
+	},
+	"site": &ResourceInfo{
+		EndPoint:       SiteStreamAPIBaseUrl + "site.json",
+		Authentication: true,
+		HttpMethod:     "GET",
+		RequiredArgs:   []string{"follow"},
+		OptionalArgs: []string{"delimited", "stall_warnings", "with",
+			"replies"},
+	},
 }
-
