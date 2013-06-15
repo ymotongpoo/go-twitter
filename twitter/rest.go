@@ -116,17 +116,17 @@ func (c *Client) makeStreamAPIRequest(ri *ResourceInfo, v *url.Values, stream in
 		if err != nil {
 			errch <- err
 		}
-		
+
 		line = bytes.TrimSpace(line)
 		if len(line) == 0 {
 			continue
 		}
-		element := reflect.Zero(etype)
-		err = json.Unmarshal(line, element)
+		ptr := reflect.New(etype)
+		err = json.Unmarshal(line, ptr.Interface())
 		if err != nil {
 			errch <- err
 		}
-		if !val.TrySend(element) {
+		if !val.TrySend(ptr.Elem()) {
 			errch <- errors.New("Can't send element")
 		}
 	}
