@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"strconv"
 
 	"github.com/garyburd/go-oauth/oauth"
 )
@@ -393,4 +394,79 @@ func (c *Client) Site(follow []string, option map[string]string) (<-chan *Tweets
 	errch := make(chan error, BufferSize)
 	go c.makeStreamAPIRequest(ri, v, stream, errch)
 	return stream, errch
+}
+
+// https://dev.twitter.com/docs/api/1.1/get/direct_messages
+func (c *Client) DirectMessages(option map[string]string) ([]*Tweets, error) {
+	ri := ResourceInfoMap["direct_messages"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	result := []*Tweets{}
+	err = c.makeAPIRequest(ri, v, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// https://dev.twitter.com/docs/api/1.1/get/direct_messages/sent
+func (c *Client) Sent(option map[string]string) ([]*Tweets, error) {
+	ri := ResourceInfoMap["direct_messages/sent"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	result := []*Tweets{}
+	err = c.makeAPIRequest(ri, v, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// https://dev.twitter.com/docs/api/1.1/get/direct_messages/show
+func (c *Client) ShowDM(id int64) ([]*Tweets, error) {
+	ri := ResourceInfoMap["direct_messages/show"]
+	v := &url.Values{}
+	v.Add("id", strconv.FormatInt(id, 10))
+	result := []*Tweets{}
+	err := c.makeAPIRequest(ri, v, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// https://dev.twitter.com/docs/api/1.1/post/direct_messages/destroy
+func (c *Client) DestroyDM(id int64, option map[string]string) ([]*Tweets, error) {
+	ri := ResourceInfoMap["direct_messages/destroy"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	v.Add("id", strconv.FormatInt(id, 10))
+	result := []*Tweets{}
+	err := c.makeAPIRequest(ri, v, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// https://dev.twitter.com/docs/api/1.1/post/direct_messages/destroy
+func (c *Client) New(text string, option map[string]string) ([]*Tweets, error) {
+	ri := ResourceInfoMap["direct_messages/new"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	v.Add("text", text)
+	result := []*Tweets{}
+	err := c.makeAPIRequest(ri, v, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
