@@ -165,4 +165,11 @@ var ResourceInfoMap = map[string]*ResourceInfo{
 		RequiredArgs:   []string{"id"},
 		OptionalArgs: []string{"include_entities"},
 	},
+	"direct_messages/new": &ResourceInfo{
+		EndPoint:       RestAPIBaseUrl + "direct_messages/new.json",
+		Authentication: true,
+		HttpMethod:     "POST",
+		RequiredArgs:   []string{"text"},
+		OptionalArgs: []string{"user_id", "screen_name"},
+	},
 }

@@ -454,3 +454,19 @@ func (c *Client) DestroyDM(id int64, option map[string]string) ([]*Tweets, error
 	}
 	return result, nil
 }
+
+// https://dev.twitter.com/docs/api/1.1/post/direct_messages/destroy
+func (c *Client) New(text string, option map[string]string) ([]*Tweets, error) {
+	ri := ResourceInfoMap["direct_messages/new"]
+	v, err := parseOptionalParams(ri, option)
+	if err != nil {
+		return nil, nil
+	}
+	v.Add("text", text)
+	result := []*Tweets{}
+	err := c.makeAPIRequest(ri, v, result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
